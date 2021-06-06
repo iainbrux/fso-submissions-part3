@@ -25,14 +25,22 @@ let contacts = [
   },
 ];
 
-app.get('/', (request, response) => {
-    response.send('<h1>Contacts list</h1>')
-})
+app.get("/", (request, response) => {
+  response.send("<h1>Contacts list</h1>");
+});
 
-app.get('/api/persons', (request, response) => {
-    console.log(contacts)
-    response.json(contacts)
-})
+app.get("/info", (request, response) => {
+  const date = new Date();
+  response.send(
+    `<p>Phonebook has info for ${contacts.length} people</p>
+    <p>${date}</p>`
+  );
+});
 
-const PORT = 3001
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
+app.get("/api/persons", (request, response) => {
+  console.log(contacts);
+  response.json(contacts);
+});
+
+const PORT = 3001;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
