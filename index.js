@@ -1,3 +1,4 @@
+const { response } = require("express");
 const express = require("express");
 const app = express();
 app.use(express.json());
@@ -25,6 +26,11 @@ let contacts = [
   },
 ];
 
+const maxID = () => {
+  let id = Math.max(...contacts.map((c) => c.id));
+  return id + 1;
+};
+
 app.get("/", (request, response) => {
   response.send("<h1>Contacts list</h1>");
 });
@@ -51,12 +57,41 @@ app.get("/api/persons/:id", (request, response) => {
   response.json(contact);
 });
 
+app.post("/api/persons", (request, response) => {
+  const body = request.body;
+  const contactExists = contacts.find(contact => body.name === contact.name)
+
+  if (!body.name) {
+    return response.status(400).json({
+      error: "name missing, please check that a name is given",
+    });
+  } else if (!body.number) {
+    return response.status(400).json({
+      error: "number missing, please check that a number is provided",
+    });
+  } else if (contactExists) {
+    return response.status(400).json({
+      error: "That contact already exists in the phonebook. Please ensure the contact name is unique",
+    });
+  }
+
+  const contact = {
+    name: body.name,
+    number: body.number,
+    id: maxID(),
+  };
+
+  contacts = contacts.concat(contact);
+  console.log(contacts)
+  response.json(contact);
+});
+
 app.delete("/api/persons/:id", (request, response) => {
-    const id = +request.params.id
-    contacts = contacts.filter(contact => contact.id !== id)
-    response.status(204).end();
-    console.log(`Contact with id ${id} has been deleted`)
-})
+  const id = +request.params.id;
+  contacts = contacts.filter((contact) => contact.id !== id);
+  response.status(204).end();
+  console.log(`Contact with id ${id} has been deleted`);
+});
 
 const PORT = 3001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
