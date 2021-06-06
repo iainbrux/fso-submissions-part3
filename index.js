@@ -1,9 +1,9 @@
 const express = require("express");
+const morgan = require('morgan');
+
 const app = express();
-const morgan = require('morgan')
 
 app.use(express.json());
-app.use(morgan('tiny'))
 
 let contacts = [
   {
@@ -28,6 +28,12 @@ let contacts = [
   },
 ];
 
+morgan.token('data', (request, response) => {
+  return JSON.stringify(contacts)
+})
+
+app.use(morgan(':method :url :status :req[content-length] - :response-time ms :data'))
+
 const maxID = () => {
   let id = Math.max(...contacts.map((c) => c.id));
   return id + 1;
@@ -46,6 +52,7 @@ app.get("/info", (request, response) => {
 });
 
 app.get("/api/persons", (request, response) => {
+  console.log(JSON.stringify(contacts))
   console.log(contacts);
   response.json(contacts);
 });
