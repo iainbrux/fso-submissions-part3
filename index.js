@@ -53,7 +53,9 @@ app.get("/api/persons/:id", (request, response) => {
 
 app.delete("/api/persons/:id", (request, response) => {
     const id = +request.params.id
-    contacts
+    contacts = contacts.filter(contact => contact.id !== id)
+    response.status(204).end();
+    console.log(`Contact with id ${id} has been deleted`)
 })
 
 const PORT = 3001;
