@@ -1,46 +1,22 @@
+require("dotenv").config();
 const express = require("express");
-const morgan = require('morgan');
-const cors = require('cors')
+const morgan = require("morgan");
+const cors = require("cors");
+const Contact = require("./models/contact");
 
 const app = express();
 
-app.use(cors())
+app.use(cors());
 app.use(express.json());
-app.use(express.static('build'));
+app.use(express.static("build"));
 
-let contacts = [
-  {
-    id: 1,
-    name: "Arto Hellas",
-    number: "040-123456",
-  },
-  {
-    id: 2,
-    name: "Ada Lovelace",
-    number: "39-44-5323523",
-  },
-  {
-    id: 3,
-    name: "Dan Abramov",
-    number: "12-43-234345",
-  },
-  {
-    id: 4,
-    name: "Mary Poppendick",
-    number: "39-23-6423122",
-  },
-];
+morgan.token("data", (request, response) => {
+  // return JSON.stringify(contacts);
+});
 
-morgan.token('data', (request, response) => {
-  return JSON.stringify(contacts)
-})
-
-app.use(morgan(':method :url :status :req[content-length] - :response-time ms :data'))
-
-const maxID = () => {
-  let id = Math.max(...contacts.map((c) => c.id));
-  return id + 1;
-};
+app.use(
+  morgan(":method :url :status :req[content-length] - :response-time ms :data")
+);
 
 app.get("/", (request, response) => {
   response.send("<h1>Contacts list</h1>");
@@ -49,29 +25,31 @@ app.get("/", (request, response) => {
 app.get("/info", (request, response) => {
   const date = new Date();
   response.send(
-    `<p>Phonebook has info for ${contacts.length} people</p>
-    <p>${date}</p>`
+    // `<p>Phonebook has info for ${contacts.length} people</p>
+    `<p>${date}</p>`
   );
 });
 
 app.get("/api/persons", (request, response) => {
-  console.log(JSON.stringify(contacts))
-  console.log(contacts);
-  response.json(contacts);
+  Contact.find({}).then((contacts) => {
+    response.json(contacts);
+  });
 });
 
 app.get("/api/persons/:id", (request, response) => {
   const id = +request.params.id;
-  const contact = contacts.find((c) => c.id === id);
-  if (!contact) {
-    return response.status(404).end();
-  }
-  response.json(contact);
+  Contact.findById(id)
+    .then((contact) => response.json(contact))
+    .catch((err) => {
+      console.error(err.message)
+      response.status(400).json({
+        error: `Contact at id ${id} not found`
+      })
+    });
 });
 
 app.post("/api/persons", (request, response) => {
   const body = request.body;
-  const contactExists = contacts.find(contact => body.name === contact.name)
 
   if (!body.name) {
     return response.status(400).json({
@@ -81,29 +59,22 @@ app.post("/api/persons", (request, response) => {
     return response.status(400).json({
       error: "number missing, please check that a number is provided",
     });
-  } else if (contactExists) {
-    return response.status(400).json({
-      error: "That contact already exists in the phonebook. Please ensure the contact name is unique",
-    });
   }
 
-  const contact = {
+  const contact = new Contact({
     name: body.name,
-    number: body.number,
-    id: maxID(),
-  };
+    number: body.number
+  });
 
-  contacts = contacts.concat(contact);
-  console.log(contacts)
-  response.json(contact);
+  contact.save().then(savedContact => response.json(savedContact))
 });
 
 app.delete("/api/persons/:id", (request, response) => {
   const id = +request.params.id;
-  contacts = contacts.filter((contact) => contact.id !== id);
+  // contacts = contacts.filter((contact) => contact.id !== id);
   response.status(204).end();
   console.log(`Contact with id ${id} has been deleted`);
 });
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
