@@ -37,7 +37,7 @@ app.get("/api/persons", (request, response) => {
 });
 
 app.get("/api/persons/:id", (request, response) => {
-  const id = +request.params.id;
+  const id = request.params.id;
   Contact.findById(id)
     .then((contact) => response.json(contact))
     .catch((err) => {
