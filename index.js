@@ -24,10 +24,12 @@ app.get("/", (request, response) => {
 
 app.get("/info", (request, response) => {
   const date = new Date();
-  response.send(
-    // `<p>Phonebook has info for ${contacts.length} people</p>
-    `<p>${date}</p>`
-  );
+  Contact.find({}).then(contacts => {
+    response.send(
+      `<p>Phonebook has info for ${contacts.length} people</p>
+      <p>${date}</p>`
+    );
+  })
 });
 
 app.get("/api/persons", (request, response) => {
