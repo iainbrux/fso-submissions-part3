@@ -36,16 +36,11 @@ app.get("/api/persons", (request, response) => {
   });
 });
 
-app.get("/api/persons/:id", (request, response) => {
+app.get("/api/persons/:id", (request, response, next) => {
   const id = request.params.id;
   Contact.findById(id)
     .then((contact) => response.json(contact))
-    .catch((err) => {
-      console.error(err.message)
-      response.status(400).json({
-        error: `Contact at id ${id} not found`
-      })
-    });
+    .catch((err) => next(err));
 });
 
 app.post("/api/persons", (request, response) => {
@@ -63,18 +58,49 @@ app.post("/api/persons", (request, response) => {
 
   const contact = new Contact({
     name: body.name,
-    number: body.number
+    number: body.number,
   });
 
-  contact.save().then(savedContact => response.json(savedContact))
+  contact.save().then((savedContact) => response.json(savedContact));
 });
 
-app.delete("/api/persons/:id", (request, response) => {
-  const id = +request.params.id;
-  // contacts = contacts.filter((contact) => contact.id !== id);
-  response.status(204).end();
-  console.log(`Contact with id ${id} has been deleted`);
+app.delete("/api/persons/:id", (request, response, next) => {
+  const id = request.params.id;
+  Contact.findByIdAndRemove(id)
+    .then((res) => {
+      response.status(204).end();
+      console.log(`Contact with id ${id} has been deleted`);
+    })
+    .catch((err) => next(err));
 });
 
-const PORT = process.env.PORT
+app.put("/api/persons/:id", (request, response, next) => {
+  const body = request.body;
+  const id = request.params.id;
+
+  const contact = {
+    name: body.name,
+    number: body.number,
+  };
+
+  Contact.findByIdAndUpdate(id, contact, { new: true })
+    .then((updatedContact) => response.json(updatedContact))
+    .catch((err) => {
+      next(err);
+    });
+});
+
+const handleErr = (error, request, response, text) => {
+  console.log(error.message);
+
+  if (error.name === "CastError") {
+    return response.status(400).send({ error: "malformatted id" });
+  }
+
+  next(error);
+};
+
+app.use(handleErr);
+
+const PORT = process.env.PORT;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
