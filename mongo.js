@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const uniqueValidator = require("mongoose-unique-validator")
 
 const password = process.argv[2];
 
@@ -12,9 +13,16 @@ mongoose.connect(dbURI, {
 });
 
 const contactSchema = new mongoose.Schema({
-  name: String,
+  name: {
+    type: String,
+    required: true,
+    unique: true,
+    minLength: 7,
+  },
   number: Number,
 });
+
+contactSchema.plugin(uniqueValidator)
 
 const Contact = mongoose.model("Contact", contactSchema);
 
@@ -41,3 +49,5 @@ if (process.argv[3] && process.argv[4]) {
     console.log('Please ensure a name and number have been entered.')
     return process.exit(1);
 }
+
+module.exports = Contact
