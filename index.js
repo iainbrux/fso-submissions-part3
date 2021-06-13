@@ -98,7 +98,9 @@ const handleErr = (error, request, response, text) => {
   if (error.name === "CastError") {
     return response.status(400).send({ error: "malformatted id" });
   } else if (error.name === "ValidationError") {
-    return response.status(400).send({ error: "Validation" })
+    return response.status(400).send({ error: error.message })
+  } else if (error.name === "MongoError") {
+    return response.status(403).send({ error: error.message, message: "That contact already exists. Please enter a unique name, or edit the contact information." })
   }
 
   next(error);

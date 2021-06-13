@@ -23,10 +23,14 @@ const contactSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    minLength: 5,
+    minLength: 3,
     unique: true
   },
-  number: Number,
+  number: {
+    type: Number,
+    required: true,
+    min: [9999999, "Please enter a contact number of 8 digits or longer"]
+  }
 });
 
 const Contact = mongoose.model("Contact", contactSchema);

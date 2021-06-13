@@ -19,7 +19,11 @@ const contactSchema = new mongoose.Schema({
     unique: true,
     minLength: 7,
   },
-  number: Number,
+  number: {
+    type: Number,
+    required: true,
+    min: 8
+  }
 });
 
 contactSchema.plugin(uniqueValidator)
@@ -49,5 +53,3 @@ if (process.argv[3] && process.argv[4]) {
     console.log('Please ensure a name and number have been entered.')
     return process.exit(1);
 }
-
-module.exports = Contact
