@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const uniqueValidator = require("mongoose-unique-validator")
+const uniqueValidator = require("mongoose-unique-validator");
 
 const password = process.argv[2];
 
@@ -26,7 +26,7 @@ const contactSchema = new mongoose.Schema({
   }
 });
 
-contactSchema.plugin(uniqueValidator)
+contactSchema.plugin(uniqueValidator);
 
 const Contact = mongoose.model("Contact", contactSchema);
 
@@ -41,7 +41,7 @@ if (process.argv[3] && process.argv[4]) {
     mongoose.connection.close();
   });
 } else if (!process.argv[3] && !process.argv[4]) {
-  console.log('phonebook:')
+  console.log("phonebook:");
   Contact.find({}).then((contacts) => {
     contacts.forEach((contact) => {
       console.log(`${contact.name} ${contact.number}`);
@@ -49,7 +49,7 @@ if (process.argv[3] && process.argv[4]) {
     });
   });
 } else {
-    console.log('A full contact has not been specified.')
-    console.log('Please ensure a name and number have been entered.')
-    return process.exit(1);
+  console.log("A full contact has not been specified.");
+  console.log("Please ensure a name and number have been entered.");
+  return process.exit(1);
 }

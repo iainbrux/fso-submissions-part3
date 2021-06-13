@@ -10,10 +10,6 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static("build"));
 
-morgan.token("data", (request, response) => {
-  // return JSON.stringify(contacts);
-});
-
 app.use(
   morgan(":method :url :status :req[content-length] - :response-time ms :data")
 );
@@ -29,7 +25,7 @@ app.get("/info", (request, response) => {
       `<p>Phonebook has info for ${contacts.length} people</p>
       <p>${date}</p>`
     );
-  })
+  });
 });
 
 app.get("/api/persons", (request, response) => {
@@ -69,7 +65,7 @@ app.post("/api/persons", (request, response, next) => {
 app.delete("/api/persons/:id", (request, response, next) => {
   const id = request.params.id;
   Contact.findByIdAndRemove(id)
-    .then((res) => {
+    .then(() => {
       response.status(204).end();
       console.log(`Contact with id ${id} has been deleted`);
     })
@@ -92,15 +88,15 @@ app.put("/api/persons/:id", (request, response, next) => {
     });
 });
 
-const handleErr = (error, request, response, text) => {
+const handleErr = (error, request, response, next) => {
   console.log(error.message);
 
   if (error.name === "CastError") {
     return response.status(400).send({ error: "malformatted id" });
   } else if (error.name === "ValidationError") {
-    return response.status(400).send({ error: error.message })
+    return response.status(400).send({ error: error.message });
   } else if (error.name === "MongoError") {
-    return response.status(403).send({ error: error.message, message: "That contact already exists. Please enter a unique name, or edit the contact information." })
+    return response.status(403).send({ error: error.message, message: "That contact already exists. Please enter a unique name, or edit the contact information." });
   }
 
   next(error);

@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
-const uniqueValidator = require("mongoose-unique-validator")
+// eslint-disable-next-line no-unused-vars
+const uniqueValidator = require("mongoose-unique-validator");
 
 const URL = process.env.MONGODB_URI;
 
@@ -12,7 +13,7 @@ mongoose
     useFindAndModify: false,
     useCreateIndex: true,
   })
-  .then((result) => {
+  .then(() => {
     console.log("connected to MongoDB");
   })
   .catch((error) => {
@@ -43,4 +44,4 @@ contactSchema.set("toJSON", {
   },
 });
 
-module.exports = mongoose.model("Contact", contactSchema)
+module.exports = Contact;
