@@ -20,7 +20,7 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "build:ui": "rm -rf build && cd ../fso-submissions/part2/phonebook && yarn build --prod && cp -r build ../../../fso-submissions-part3",
-    "deploy": "git push heroku main",
+    "deploy": "git push heroku HEAD:main",
     "deploy:full": "yarn build:ui && git add . && git commit -m uibuild && git push && yarn deploy",
     "logs:prod": "heroku logs --tail"
   }
